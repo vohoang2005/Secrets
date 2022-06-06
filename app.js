@@ -3,9 +3,18 @@ require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-Parser");
 const ejs = require("ejs");
+//Level 2 encryption
 const mongoose = require("mongoose");
+//Level 3 Hash 
+//const md5 = require("md5");
+//Level 4 Hash using Bcrypt w/ salt
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
+
 const res = require("express/lib/response");
-const encrypt = require("mongoose-encryption");
+
+// Mongoose Encrytpion
+// const encrypt = require("mongoose-encryption");
 const SECRET = process.env.SECRET
 
 const app = express();
@@ -22,7 +31,9 @@ const userSchema = new mongoose.Schema ({
 });
 
 const secret = "Thisisourlittlesecret."
-userSchema.plugin(encrypt, {secret: SECRET, encryptedFields: ['password']});
+
+//Mongoose Encryption
+//userSchema.plugin(encrypt, {secret: SECRET, encryptedFields: ['password']});
 
 const User = new mongoose.model("User", userSchema)
 
@@ -39,11 +50,13 @@ app.get("/register", function(req, res) {
 });
 
 app.post("/register", function(req, res) {
-    const newUser = new User({
-        email: req.body.username,
-        password: req.body.password
-    });
 
+    bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+       
+        const newUser = new User({
+        email: req.body.username,
+        password: hash
+    });
 
 newUser.save(function(err) {
     if(err) {
@@ -53,7 +66,7 @@ newUser.save(function(err) {
     }
     });
 });
-
+});
 app.post("/login", function(req, res) {
     const username = req.body.username;
     const password = req.body.password;
