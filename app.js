@@ -43,7 +43,7 @@ mongoose.connect("mongodb://127.0.0.1:27017/userDB", {useNewUrlParser: true});
 const userSchema = new mongoose.Schema ({
     email: String,
     password: String,
-    secret: String
+    secret: Array
 });
 
 userSchema.plugin(passportLocalMongoose);
@@ -70,12 +70,12 @@ app.get("/register", function(req, res) {
 });
 
 app.get("/secrets", function(req, res) {
-    User.find({"secret": {$ne: null}}, function(err, foundUser) {
+    User.find({"secret": {$ne: null}}, function(err, foundUsers) {
         if(err){
             console.log(err);
         }else{
-            if(foundUser) {
-                res.render("secrets", {usersWithSecrets: foundUser})
+            if(foundUsers) {
+                res.render("secrets", {usersWithSecrets: foundUsers})
             }
         }
     });
